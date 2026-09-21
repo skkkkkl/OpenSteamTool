@@ -42,23 +42,23 @@ namespace ManifestClient {
         std::string_view name;          // matches [manifest] url = "..."
         const char*      urlTemplate;   // full literal with one %llu — for log & path
         Parser           parse;
-        const wchar_t*   headers;       // [新增] HTTP 请求头字段
+        const wchar_t*   headers;
     };
 
-    consteval Provider Make(std::string_view name, const char* url, Parser parse, const wchar_t* headers = nullptr) {
+    consteval Provider Make(std::string_view name, const char* url, Parser parse,
+                            const wchar_t* headers = nullptr) {
         return {name, url, parse, headers};
     }
 
     static constexpr Provider kProviders[] = {
-        // [修改] 保持 opensteamtool 在第一位，确保默认 provider 不变
         Make("opensteamtool", "https://manifest.opensteamtool.com/%llu",       ParsePlainUint),
-        // [新增] 严格对齐 PR #200 的 URL 和 User-Agent
-        Make("manifestdex",   "https://manifest.manifestdex.com/%llu",         ParsePlainUint, L"User-Agent: ManifestDeX/1.0\r\n"),
-        Make("wudrm",         "http://gmrc.wudrm.com/manifest/%llu",            ParsePlainUint),
+        Make("manifestdex",   "https://manifest.manifestdex.com/%llu",         ParsePlainUint,
+             L"User-Agent: ManifestDeX/1.0\r\n"),
+        Make("wudrm",         "http://gmrc.wudrm.com/manifest/%llu",           ParsePlainUint),
         Make("steamrun",      "https://manifest.steam.run/api/manifest/%llu",  ParseSteamRunJson),
     };
 
-    static const Provider* g_active = &kProviders[0];   // 默认依然指向 opensteamtool
+    static const Provider* g_active = &kProviders[0];   // opensteamtool
     static std::mutex      g_mutex;
 
     bool SetProvider(std::string_view name) {
@@ -96,7 +96,7 @@ namespace ManifestClient {
             urlLog,
             nullptr,
             0,
-            p.headers, // [修改] 将 p.headers 传入 Http::Execute
+            p.headers,
             timeouts.resolve,
             timeouts.connect,
             timeouts.send,
